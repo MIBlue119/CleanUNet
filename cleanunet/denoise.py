@@ -46,9 +46,9 @@ np.random.seed(0)
 from scipy.io.wavfile import write as wavwrite
 from scipy.io.wavfile import read as wavread
 
-from dataset import load_CleanNoisyPairDataset
-from util import rescale, find_max_epoch, print_size, sampling
-from network import CleanUNet
+from cleanunet.dataset import load_CleanNoisyPairDataset
+from cleanunet.util import rescale, find_max_epoch, print_size, sampling
+from cleanunet.network import CleanUNet
 
 
 def denoise(output_directory, ckpt_iter, subset, dump=False):

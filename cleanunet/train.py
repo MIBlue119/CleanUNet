@@ -43,14 +43,14 @@ torch.manual_seed(0)
 np.random.seed(0)
 
 
-from distributed import init_distributed, apply_gradient_allreduce, reduce_tensor
+from cleanunet.distributed import init_distributed, apply_gradient_allreduce, reduce_tensor
 
-from dataset import load_CleanNoisyPairDataset
-from stft_loss import MultiResolutionSTFTLoss
-from util import rescale, find_max_epoch, print_size
-from util import LinearWarmupCosineDecay, loss_fn
+from cleanunet.dataset import load_CleanNoisyPairDataset
+from cleanunet.stft_loss import MultiResolutionSTFTLoss
+from cleanunet.util import rescale, find_max_epoch, print_size
+from cleanunet.util import LinearWarmupCosineDecay, loss_fn
 
-from network import CleanUNet
+from cleanunet.network import CleanUNet
 
 
 def train(num_gpus, rank, group_name, 

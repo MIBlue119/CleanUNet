@@ -7,7 +7,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-from util import weight_scaling_init
+from cleanunet.util import weight_scaling_init
 
 
 # Transformer (encoder) https://github.com/jadore801120/attention-is-all-you-need-pytorch
@@ -81,7 +81,7 @@ class MultiHeadAttention(nn.Module):
         # Combine the last two dimensions to concatenate all the heads together: b x lq x (n*dv)
         q = q.transpose(1, 2).contiguous().view(sz_b, len_q, -1)
         q = self.dropout(self.fc(q))
-        q += residual
+        q = q + residual
 
         q = self.layer_norm(q)
 
@@ -294,7 +294,7 @@ class CleanUNet(nn.Module):
             channels_output = channels_H
             
             # double H but keep below max_H
-            channels_H *= 2
+            channels_H = 2 * channels_H
             channels_H = min(channels_H, max_H)
         
         # self attention block
@@ -348,7 +348,7 @@ class CleanUNet(nn.Module):
         # decoder
         for i, upsampling_block in enumerate(self.decoder):
             skip_i = skip_connections[i]
-            x += skip_i[:, :, :x.shape[-1]]
+            x = x + skip_i[:, :, :x.shape[-1]]
             x = upsampling_block(x)
 
         x = x[:, :, :L] * std
@@ -359,19 +359,20 @@ if __name__ == '__main__':
     import json
     import argparse 
     import os
+    from pathlib import Path
 
     parser = argparse.ArgumentParser()
     parser.add_argument('-c', '--config', type=str, default='configs/DNS-large-full.json', 
                         help='JSON file for configuration')
     args = parser.parse_args()
-
-    with open(args.config) as f:
+    config_path= os.path.join(Path(__file__).parent.resolve(), args.config)
+    with open(config_path) as f:
         data = f.read()
     config = json.loads(data)
     network_config = config["network_config"]
 
     model = CleanUNet(**network_config).cuda()
-    from util import print_size
+    from cleanunet.util import print_size
     print_size(model, keyword="tsfm")
     
     input_data = torch.ones([4,1,int(4.5*16000)]).cuda()
